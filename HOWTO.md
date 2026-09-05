@@ -171,7 +171,7 @@ Commit, then tag and push. The tag must be `vx.y.z`, with the `v` and
 all three parts; the Go module proxy ignores any other form:
 
 ```bash
-git commit -m '[release] Release x.y.z'
+git commit -m 'Release foodmart-data vx.y.z'
 git tag vx.y.z
 git push origin main vx.y.z
 ```

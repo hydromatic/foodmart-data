@@ -23,24 +23,39 @@ License.
 For a full list of releases, see
 [GitHub](https://github.com/hydromatic/foodmart-data/releases).
 
+## <a id="v0.6.1" href="https://github.com/hydromatic/foodmart-data/releases/tag/v0.6.1">v0.6.1</a> / 2026-09-05
+
+Adds a Rust crate,
+[foodmart-data](https://crates.io/crates/foodmart-data). Like the Go
+module, it embeds the CSV files and has no dependencies.
+
+It requires Rust 1.71 or higher.
+
+The Go module is unchanged.
+
+* Add a Rust crate,
+  [`foodmart-data`](https://crates.io/crates/foodmart-data)
+* Generate `src/schema.rs`, as well as `schema.go`, from the schema in
+  `tools/schema.py`
+* In `HOWTO.md`, describe the Rust release process, and the policy the
+  minimum supported versions follow
+
 ## <a id="v0.6.0" href="https://github.com/hydromatic/foodmart-data/releases/tag/v0.6.0">v0.6.0</a> / 2026-09-05
 
-First release. It provides the Foodmart data set as a Go module and a
-Rust crate, both of which embed the data as CSV files and have no
-dependencies.
+First release. It provides the Foodmart data set as CSV files, one
+per table, embedded in a Go module that has no dependencies.
+
+It requires Go 1.22 or higher.
 
 The version number matches
 [foodmart-data-hsqldb](https://github.com/julianhyde/foodmart-data-hsqldb)
 0.6, from which the CSV files are taken.
 
-It requires Rust 1.71 or higher, and Go 1.22 or higher.
-
+* Add the Foodmart data set as 26 CSV files
 * Add a Go module, `github.com/hydromatic/foodmart-data`
-* Generate `schema.go` and `src/schema.rs` from the schema in
-  `tools/schema.py`
+* Generate `schema.go` from the schema in `tools/schema.py`
 * Add a `golangci-lint` configuration enabling most linters
 * Add a lint test that ensures that every source file has a header
 * Add `HOWTO.md`, describing the Go release process
-* Add a Rust crate, `foodmart-data`
 
 <!-- End CHANGELOG.md -->

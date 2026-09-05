@@ -176,13 +176,13 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-foodmart-data = "0.6.0"
+foodmart-data = "0.6.1"
 ```
 
 ### From the Go module proxy
 
 ```bash
-$ go get github.com/hydromatic/foodmart-data@v0.6.0
+$ go get github.com/hydromatic/foodmart-data@v0.6.1
 ```
 
 ### Download and build
