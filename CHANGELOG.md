@@ -21,9 +21,9 @@ License.
 # Foodmart data release history and change log
 
 For a full list of releases, see
-<a href="https://github.com/hydromatic/foodmart-data/releases">GitHub</a>.
+[GitHub](https://github.com/hydromatic/foodmart-data/releases).
 
-## <a href="https://github.com/hydromatic/foodmart-data/releases/tag/v0.6.0">0.6.0</a> / 2026-09-04
+## <a id="v0.6.0" href="https://github.com/hydromatic/foodmart-data/releases/tag/v0.6.0">v0.6.0</a> / 2026-09-05
 
 First release. It provides the Foodmart data set as CSV files, one
 per table, embedded in a Go module that has no dependencies.
@@ -35,5 +35,8 @@ The version number matches
 * Add the Foodmart data set as 26 CSV files
 * Add a Go module, `github.com/hydromatic/foodmart-data`
 * Generate `schema.go` from the schema in `tools/schema.py`
+* Add a `golangci-lint` configuration enabling most linters
+* Add a lint test that ensures that every source file has a header
+* Add `HOWTO.md`, describing the Go release process
 
 <!-- End CHANGELOG.md -->
