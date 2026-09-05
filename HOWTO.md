@@ -52,10 +52,67 @@ Generating checks that every column matches the header row of its CSV
 file, and that there is no CSV file that `SCHEMA` does not describe, so
 it fails rather than emitting a schema that disagrees with the data.
 
+# Minimum supported versions
+
+Two files declare a minimum, and CI builds against each of them:
+
+| | declared in | tested by |
+| --- | --- | --- |
+| Rust | `rust-version` in [Cargo.toml](Cargo.toml) | the lowest `rust-version` in the matrix |
+| Go | the `go` directive in [go.mod](go.mod) | the lowest `go-version` in the matrix |
+
+The matrix is in
+[.github/workflows/main.yml](.github/workflows/main.yml). The lowest
+entry must equal the declared minimum; if you change one, change the
+other in the same commit, or CI will quietly stop testing the version
+the package claims to support.
+
+The policy is to keep both minimums as low as the code allows.
+
+Neither package has any dependencies, so nothing outside this
+repository can push a minimum up; it moves only when this code starts
+using a newer language or library feature. And this is a data set that
+people add to a project that already exists, so requiring them to
+upgrade a toolchain in order to read a CSV file is a poor bargain.
+
+Raising a minimum is therefore a compatibility break: give it its own
+entry in the [release history](CHANGELOG.md), and prefer giving up the
+feature that forced it, unless that feature is worth more than the
+projects it shuts out.
+
+For Rust there is a floor as well as a policy. As of each release, the
+minimum will be at least two years, and at least ten minor versions,
+behind the stable release of the day. Both bounds apply, and whichever
+is stricter wins. Rust ships every six weeks, so ten versions is about
+fourteen months; the two-year bound is thus the one that normally
+binds, and the version bound only matters if that cadence changes.
+
+The minimum today is 1.71, released in July 2023. Stable is 1.71 plus
+twenty-six minor versions, and more than three years newer, so 1.71
+has room to stay where it is for a while yet. It is also the most
+common minimum among published crates, which is why it was chosen.
+
+Go is not held to those numbers. It releases twice a year and supports
+only the two most recent releases, so ten versions would be five
+years; the general policy above is the whole rule there.
+
+The hard floor for Rust is edition 2021, which needs 1.56.
+
+To check a minimum by hand, rather than waiting for CI:
+
+```bash
+rustup toolchain install 1.71.0 --profile minimal
+cargo +1.71.0 test
+
+GOTOOLCHAIN=go1.22.0 go test ./...
+```
+
 # Release
 
-Releasing publishes the Go module: pushing a tag is enough, because the
-Go module proxy builds the module from the tag itself. Read
+Releasing publishes two artifacts from one tag: the Go module, for
+which pushing the tag is enough, and the crate, which is uploaded to
+[crates.io](https://crates.io/crates/foodmart-data). They fail in
+different ways, so read
 [what cannot be undone](#what-cannot-be-undone) before you start.
 
 Check that the sandbox is clean, and that the generated files are up to
@@ -76,8 +133,30 @@ fullMake --clean
 ```
 
 Update the [release history](CHANGELOG.md),
-the version in the `go get` command in [README](README.md),
+the `version` in [Cargo.toml](Cargo.toml),
+the two version numbers in [README](README.md)
+(the `foodmart-data = "x.y.z"` dependency and the `go get` command),
 and the copyright date in [NOTICE](NOTICE).
+
+Check that the crate contains everything it should, and nothing it
+should not. `cargo package` builds the crate from the packaged tarball
+alone, so it catches a file missing from the `include` list in
+`Cargo.toml`; `cargo publish --dry-run` does the same and also
+validates the metadata that crates.io will see:
+
+```bash
+cargo package --list
+cargo package
+ls -l target/package/foodmart-data-*.crate
+cargo publish --dry-run
+```
+
+(`cargo publish --dry-run` does not leave the `.crate` file behind, so
+run `cargo package` if you want to look at it.)
+
+The `.crate` must be under 10MB, which is the crates.io limit. It is
+currently about 3.7MB; if it ever approaches the limit, ship the CSV
+files compressed rather than asking for the limit to be raised.
 
 Check what the Go module proxy will see. It builds the module from the
 tag using `git archive`, so a file that is untracked, or ignored, or in
@@ -95,6 +174,12 @@ all three parts; the Go module proxy ignores any other form:
 git commit -m '[release] Release x.y.z'
 git tag vx.y.z
 git push origin main vx.y.z
+```
+
+Publish the crate:
+
+```bash
+cargo publish
 ```
 
 Ask the Go module proxy to fetch the tag, and check that a project that
@@ -122,18 +207,22 @@ EOF
 go run .    # expect "7 <nil>"
 ```
 
-Check that
+Check that [docs.rs](https://docs.rs/foodmart-data) and
 [pkg.go.dev](https://pkg.go.dev/github.com/hydromatic/foodmart-data)
-has picked up the new version.
+have picked up the new version.
 
 Update the [release history](CHANGELOG.md) and the version in
 [README](README.md) for the next development version.
 
 ## What cannot be undone
 
-A release cannot be withdrawn, so the checks above are worth doing in
-order.
+A release cannot be withdrawn from either registry, so the checks above
+are worth doing in order.
 
+* **crates.io.** A published version can only be
+  [yanked](https://doc.rust-lang.org/cargo/commands/cargo-yank.html),
+  which stops new projects resolving to it but leaves it downloadable
+  forever. The version number can never be used again.
 * **The Go module proxy.** Once anyone fetches a version, its hash is
   recorded permanently in the
   [checksum database](https://sum.golang.org/). Moving or deleting the
@@ -141,7 +230,8 @@ order.
   the tag disagree with what everyone downloads. A broken release can
   only be superseded by a higher version.
 
-Nothing is uploaded, so nothing is validated until a user builds
-against the tag. That is what the `git archive` check above is for.
+The Go side is the riskier of the two, because nothing is uploaded and
+so nothing is validated until a user builds against the tag. That is
+what the `git archive` check above is for.
 
 <!-- End HOWTO.md -->
