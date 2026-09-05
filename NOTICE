@@ -1,0 +1,8 @@
+foodmart-data
+Foodmart data set for Go and Rust
+
+Copyright (C) 2026-2026 Julian Hyde
+All Rights Reserved.
+
+The CSV files are derived from the foodmart-data-hsqldb project
+(https://github.com/julianhyde/foodmart-data-hsqldb).
